@@ -1,0 +1,17 @@
+#!/bin/bash
+year=$1
+values_count=10000
+padding_width=4
+if [ $# -eq 0 ]
+	then
+		echo "Please enter the year you want to check";
+		exit 1
+else
+for i in `seq 1 $(($values_count -1))`;
+do
+	##CVE's have the 0001 form
+	c=$(printf "%0*d\n" $padding_width $i);
+	echo -n "$c :";
+	shodan count vuln:CVE-$year-$c;
+done;
+fi
