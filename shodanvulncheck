@@ -1,17 +1,38 @@
 #!/bin/bash
-year=$1
+year_flag=false
+sleep_flag=false
 values_count=10000
 padding_width=4
-if [ $# -eq 0 ]
-	then
-		echo "Please enter the year you want to check";
-		exit 1
-else
+sleep_dur=0.5
+usage() { echo "[-help] [-y Year] [-s Sleep] --Program to scan for vulnerabilities through Shodan API for a specific year.
+
+where:
+	-h Show this message
+	-y Year to be scanned
+	-s Seconds of sleep between each iteration
+
+Example: 'shodanvulncheck -y 2018 -s 0.5'"
+}
+while getopts ":hy:s:" option;
+do
+	case "$option" in
+	h ) usage; exit ;;
+	y ) year=$OPTARG;year_flag=true;;
+	s ) sleep_dur=$OPTARG;sleep_flag=true;;
+	: ) echo "Missing option argument for -$OPTARG" >&2; exit 1;;	
+	esac
+done
+shift $((OPTIND -1))
+if [ "$year_flag" = false ] ; then
+	echo "Wrong input please refer to -h (help)";
+	exit 1;
+fi
 for i in `seq 1 $(($values_count -1))`;
 do
 	##CVE's have the 0001 form
 	c=$(printf "%0*d\n" $padding_width $i);
 	echo -n "$c :";
 	shodan count vuln:CVE-$year-$c;
+	sleep $sleep_dur;
 done;
-fi
+
